@@ -84,7 +84,7 @@ update_ssh_service() {
     # Reload the systemd daemon and restart the SSH service
     echo "Reloading systemd daemon and restarting SSH service..."
     systemctl daemon-reload
-    if systemctl restart sshd; then
+    if systemctl restart ssh; then
         echo "SSH service successfully restarted with the new configuration file."
     else
         echo "Error: Failed to restart SSH service. Check the configuration and logs for details."
